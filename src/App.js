@@ -1,5 +1,7 @@
 import React from 'react';
 import {useState} from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {setHistory, setNextSquares} from './gameSlice';
 
 function Square({value, onSquareClick}) {
   return (
@@ -13,6 +15,7 @@ function Square({value, onSquareClick}) {
 }
 
 function calculateWinner(squares) {
+  // console.log(squares)
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -35,6 +38,8 @@ function calculateWinner(squares) {
 
 function Board({xIsNext, squares, onPlay}) {
   function handleClick(i) {
+    console.log(i)
+    console.log(squares[i])
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
@@ -105,32 +110,44 @@ function Board({xIsNext, squares, onPlay}) {
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
+  const dispatch = useDispatch();
+  const currentSquares = useSelector((state) => state.game.currentSquares)
+  const currentMove = useSelector ((state) => state.game.currentMove)
+  const history = useSelector((state) => state.game.history)
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  console.log(JSON.stringify(useSelector((state) => state)))
+  // const [history, setHistory] = useState([Array(9).fill(null)]);
+  // const [currentMove, setCurrentMove] = useState(0);
+  // console.log(useSelector(state));
+  // const xIsNext = currentMove % 2 === 0;
+  // const currentSquares = history[currentMove];
+
+  console.log('currentSquares',currentSquares)
+  // console.log(moves)
 
   function handlePlay(nextSquares) {
+    // console.log(nextSquares)
+    dispatch(setHistory);
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
+    dispatch(setCurrentMove)
   }
 
   function jumpTo(nextMove) {
     setCurrentMove(nextMove)
   }
 
-  const moves = history.map((squares, move) => {
-    let description;
-    description = move > 0 ? 'Go to move #' + move : 'Go to game start';
-
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    );
-
-  })
+  // const moves = history.map((squares, move) => {
+  //   let description;
+  //   description = move > 0 ? 'Go to move #' + move : 'Go to game start';
+  //
+  //   return (
+  //     <li key={move}>
+  //       <button onClick={() => jumpTo(move)}>{description}</button>
+  //     </li>
+  //   );
+  //
+  // })
 
   return (
     <div className="game">
@@ -142,7 +159,7 @@ export default function Game() {
         />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <ol>{currentMove}</ol>
       </div>
     </div>
   );
