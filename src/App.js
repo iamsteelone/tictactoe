@@ -1,7 +1,6 @@
 import React from 'react';
-import {useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {setCurrentMove} from './gameSlice';
+import { setCurrentMove, setHistory, setXIsNext } from './gameSlice';
 
 function Square({value, onSquareClick}) {
   return (
@@ -110,15 +109,16 @@ function Board({xIsNext, squares, onPlay}) {
 
 export default function Game() {
   const dispatch = useDispatch();
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const history = useSelector((state) => state.game.history);
   const currentMove = useSelector((state) => state.game.currentMove);
-  const xIsNext = currentMove % 2 === 0;
+  const xIsNext = useSelector((state) => state.game.xIsNext);
   const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory(nextHistory);
+    dispatch(setHistory({nextHistory: nextHistory}));
     dispatch(setCurrentMove({move: nextHistory.length - 1}));
+    dispatch(setXIsNext());
   }
 
   function jumpTo(nextMove) {
