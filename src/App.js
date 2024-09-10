@@ -37,6 +37,8 @@ function calculateWinner(squares) {
 
 function Board({xIsNext, squares, onPlay}) {
   function handleClick(i) {
+    console.log(i)
+    console.log(squares[i])
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
@@ -113,9 +115,19 @@ export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const currentMove = useSelector((state) => state.game.currentMove);
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  console.log(JSON.stringify(useSelector((state) => state)))
+  // const [history, setHistory] = useState([Array(9).fill(null)]);
+  // const [currentMove, setCurrentMove] = useState(0);
+  // console.log(useSelector(state));
+  // const xIsNext = currentMove % 2 === 0;
+  // const currentSquares = history[currentMove];
+
+  console.log('currentSquares',currentSquares)
+  // console.log(moves)
 
   function handlePlay(nextSquares) {
+    // console.log(nextSquares)
+    dispatch(setHistory);
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     dispatch(setCurrentMove({move: nextHistory.length - 1}));
@@ -134,7 +146,6 @@ export default function Game() {
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
-
   })
 
   return (
@@ -147,7 +158,7 @@ export default function Game() {
         />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <ol>{currentMove}</ol>
       </div>
     </div>
   );
