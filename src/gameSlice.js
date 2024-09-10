@@ -6,7 +6,7 @@ export const gameSlice = createSlice({
     currentMove: 0,
   },
   reducers: {
-    'setCurrentMove': (state, action) => {
+    setCurrentMove: (state, action) => {
       state.currentMove = action.payload.move
     }
   }
