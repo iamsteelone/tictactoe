@@ -1,7 +1,7 @@
 import React from 'react';
 import {useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {setHistory, setNextSquares} from './gameSlice';
+import {setCurrentMove} from './gameSlice';
 
 function Square({value, onSquareClick}) {
   return (
@@ -15,25 +15,24 @@ function Square({value, onSquareClick}) {
 }
 
 function calculateWinner(squares) {
-  // console.log(squares)
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-  ];
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
 
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
     }
-  }
-  return null;
+    return null;
 }
 
 function Board({xIsNext, squares, onPlay}) {
@@ -45,9 +44,11 @@ function Board({xIsNext, squares, onPlay}) {
     }
 
     const nextSquares = squares.slice();
+
     nextSquares[i] = xIsNext ? 'X' : 'O';
     onPlay(nextSquares);
   }
+
 
   const winner = calculateWinner(squares)
   let status;
@@ -111,9 +112,8 @@ function Board({xIsNext, squares, onPlay}) {
 
 export default function Game() {
   const dispatch = useDispatch();
-  const currentSquares = useSelector((state) => state.game.currentSquares)
-  const currentMove = useSelector ((state) => state.game.currentMove)
-  const history = useSelector((state) => state.game.history)
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentMove = useSelector((state) => state.game.currentMove);
   const xIsNext = currentMove % 2 === 0;
   console.log(JSON.stringify(useSelector((state) => state)))
   // const [history, setHistory] = useState([Array(9).fill(null)]);
@@ -130,24 +130,23 @@ export default function Game() {
     dispatch(setHistory);
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
-    dispatch(setCurrentMove)
+    dispatch(setCurrentMove({move: nextHistory.length - 1}));
   }
 
   function jumpTo(nextMove) {
-    setCurrentMove(nextMove)
+    dispatch(setCurrentMove({move: nextMove}));
   }
 
-  // const moves = history.map((squares, move) => {
-  //   let description;
-  //   description = move > 0 ? 'Go to move #' + move : 'Go to game start';
-  //
-  //   return (
-  //     <li key={move}>
-  //       <button onClick={() => jumpTo(move)}>{description}</button>
-  //     </li>
-  //   );
-  //
-  // })
+  const moves = history.map((squares, move) => {
+    let description;
+    description = move > 0 ? 'Go to move #' + move : 'Go to game start';
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  })
 
   return (
     <div className="game">
